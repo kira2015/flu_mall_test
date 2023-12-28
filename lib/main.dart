@@ -58,24 +58,34 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) {
-                    // return const PageOne();
-                    return PageTwo();
-                  }));
-                },
-                child: const SizedBox(
-                  width: 200,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.account_balance_rounded),
-                      Text("欢迎来到我的页面")
-                    ],
-                  ),
-                ))
+            IconButton(
+              onPressed: () => print('tap'),
+              icon: Text('Tap Event'),
+            ),
+            TextButton(
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [Icon(Icons.sick), Text("One")],
+              ),
+              onPressed: () => Navigator.push(
+                context,
+                PageRouteBuilder(pageBuilder: (context, _, __) => PageOne()),
+              ),
+            ),
+            OutlinedButton(
+              onPressed: () {
+                Navigator.of(context).push(PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) {
+                  return PageTwo();
+                }));
+              },
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [Icon(Icons.account_balance_rounded), Text("Two")],
+              ),
+            )
           ],
         ),
       ),

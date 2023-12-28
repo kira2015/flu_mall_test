@@ -3,8 +3,10 @@ import 'package:dio/dio.dart';
 
 
 class PageTwo extends StatefulWidget {
+  const PageTwo({super.key});
+
   @override
-  _PageTwoState createState() => _PageTwoState();
+  State<PageTwo> createState() => _PageTwoState();
 }
 
 class _PageTwoState extends State<PageTwo> {
@@ -32,7 +34,7 @@ class _PageTwoState extends State<PageTwo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Posts List'),
+        title: const Text('Posts List'),
       ),
       body: FutureBuilder<List<Post>>(
         future: posts,
@@ -51,13 +53,14 @@ class _PageTwoState extends State<PageTwo> {
               },
             );
           } else {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
         },
       ),
     );
   }
 }
+
 
 class Post {
   final String title;
