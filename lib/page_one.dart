@@ -1,7 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flu_mall_test/model/post_info.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class PageOne extends StatefulWidget {
   const PageOne({super.key});
@@ -74,130 +76,30 @@ class DynamicGrid extends StatefulWidget {
 }
 
 class _DynamicGridState extends State<DynamicGrid> {
-  double scrollviewHeight = 300;
-  void updateHeight(double height) {
-    if (height == scrollviewHeight) {
-      return;
-    }
-    setState(() {
-      scrollviewHeight = height;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: SizedBox(
-        height: scrollviewHeight,
-        child: WaterfallGrid(
-          columnCount: 2,
-          updateHeight: updateHeight,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: StaggeredGrid.count(
+          crossAxisCount: 3,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 20,
           children: List.generate(widget.posts.length, (index) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Image.network(widget.posts[index].imageUrl),
-                Text(widget.posts[index].title),
-                Text(widget.posts[index].description),
-              ],
+            final p = widget.posts[index];
+            return Container(
+              color: Colors.primaries[Random().nextInt(Colors.primaries.length)],
+              child: Column(
+                children: [
+                  Image.network(p.imageUrl),
+                  Text('第$index个'),
+                  Text(p.description),
+                ],
+              ),
             );
           }),
         ),
       ),
     );
-  }
-}
-
-class WaterfallGrid extends StatelessWidget {
-  final List<Widget> children;
-  final int columnCount;
-  final Function(double) updateHeight;
-  const WaterfallGrid(
-      {super.key,
-      required this.children,
-      this.columnCount = 2,
-      required this.updateHeight});
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomMultiChildLayout(
-      delegate: WaterfallGridDelegate(
-          columnCount: columnCount,
-          children: children,
-          updateHeight: updateHeight),
-      children: List.generate(children.length, (index) {
-        return LayoutId(
-          id: index,
-          child: children[index],
-        );
-      }),
-    );
-  }
-}
-
-class WaterfallGridDelegate extends MultiChildLayoutDelegate {
-  final int columnCount;
-  final List<Widget> children;
-  final Function(double) updateHeight;
-  double lastMaxHeight = 0.0; // 用于存储上次的高度
-  WaterfallGridDelegate(
-      {required this.columnCount,
-      required this.children,
-      required this.updateHeight});
-
-  @override
-  void performLayout(Size size) {
-    // 每列的宽度
-    double columnWidth = size.width / columnCount;
-    // 每列的当前高度
-    List<double> columnHeights = List.generate(columnCount, (index) => 0.0);
-
-    for (int i = 0; i < children.length; i++) {
-      // 假设子 Widget 的宽度等于列宽
-      final childSize = layoutChild(
-        i,
-        BoxConstraints(
-          maxWidth: columnWidth,
-          minHeight: 0.0,
-          maxHeight: size.height,
-        ),
-      );
-
-      // 找到当前最短的列
-      int shortestColumnIndex = 0;
-      double shortestHeight = double.maxFinite;
-      for (int j = 0; j < columnCount; j++) {
-        if (columnHeights[j] < shortestHeight) {
-          shortestHeight = columnHeights[j];
-          shortestColumnIndex = j;
-        }
-      }
-
-      // 定位子 Widget
-      positionChild(
-        i,
-        Offset(columnWidth * shortestColumnIndex,
-            columnHeights[shortestColumnIndex]),
-      );
-
-      // 更新列高
-      columnHeights[shortestColumnIndex] += childSize.height;
-      // 两个数中的最大值
-      double maxHeight = columnHeights.reduce((a, b) => a > b ? a : b);
-      print('maxHeight: $maxHeight');
-      // 更新滚动视图的高度
-      if (maxHeight != lastMaxHeight) {
-        lastMaxHeight = maxHeight; // 更新存储的高度
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          updateHeight(maxHeight);
-        });
-      }
-    }
-  }
-
-  @override
-  bool shouldRelayout(covariant MultiChildLayoutDelegate oldDelegate) {
-    return true;
   }
 }
